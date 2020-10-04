@@ -57,33 +57,33 @@ function start(cookie) {
     }
   });
 }
-async function follow(cookie) {
+async function follow(headers) {
   console.log("Başladı");
   await sleep(2000);
   console.log("Two seconds later, showing sleep in a loop...");
 
   // Sleep in loop
   for (let i = 0; i < Arrayid.length; i++) {
-    console.log(Arrayid[i]);
-
     if (!Arrayid[i].followed) {
-      await sleep(1200000);
+      console.log(Arrayid[i]);
+
+      await sleep(600000);
       axios({
         method: "post", //you can set what request you want to be
         url: `https://www.instagram.com/web/friendships/${Arrayid[i].id}/follow/`,
 
-        headers: {
-          cookie: cookie,
-          "x-csrftoken": "jKkadQ3Cm5k2TQIWSgbPGP1sravoPMGC",
-          "x-ig-app-id": "936619743392459",
-          "x-instagram-ajax": "01b761449ae2",
-          accept: "*/*",
-        },
+        headers: headers,
       })
         .then((response) => {
           console.log(response);
         })
-        .catch((e) => console.log(e));
+        .catch((e) => console.log("error"));
+      User.updateOne(
+        { _id: Arrayid[i]._id }, // Filter
+        { $set: { followed: true } } // Update
+      )
+        .then((obj) => console.log("updated > "))
+        .catch((err) => console.log(err));
     }
   }
 }
@@ -191,7 +191,7 @@ function showid(array, cookie) {
  */
 //app.get('/', (req, res) => res.send('Hello World!'))
 app.post("/follow", async (req, res) => {
-  start(req.headers.cookie).then(() => res.send("basladı"));
+  start(req.headers).then(() => res.send("basladı"));
 });
 
 app.listen(port, () =>
